@@ -385,9 +385,10 @@ with tab1:
         if len(top3d)==0: html += '<div style="font-size:12px;color:#7B8FAE;padding:6px 0">Sin divisiones criticas</div>'
         html += '</div>'
         st.markdown(html, unsafe_allow_html=True)
-        # Botones de drill-down reales
+        # Drill-down: botones invisibles superpuestos sobre cada fila
         for _,r in top3d.iterrows():
-            if st.button(f"Ver {r['Div']}", key=f"d_{r['Div']}", use_container_width=True):
+            if st.button(f"► {r['Div']}", key=f"d_{r['Div']}", use_container_width=True,
+                help=f"Ver detalle de {r['Div']}"):
                 nav_go(1, unidad=unidad_sel, divs=[r['Div']])
 
     # Flash: Top 3 regiones — clic navega a Regiones filtrada
@@ -402,7 +403,8 @@ with tab1:
         html += '</div>'
         st.markdown(html, unsafe_allow_html=True)
         for _,r in top3r.iterrows():
-            if st.button(f"Ver Reg. {r['Region']}", key=f"r_{r['Region']}", use_container_width=True):
+            if st.button(f"► Reg. {r['Region']}", key=f"r_{r['Region']}", use_container_width=True,
+                help=f"Ver detalle de Región {r['Region']}"):
                 nav_go(2, unidad=unidad_sel, zona=r['Zona'], regs=[r['Region']])
 
     # Flash: Top 2 DM por region critica — clic navega a DM filtrado
@@ -430,7 +432,8 @@ with tab1:
         st.markdown(html, unsafe_allow_html=True)
         for dm_name, reg, zona in dm_buttons:
             nombre_corto = dm_name.split()[0]+' '+dm_name.split()[-1]
-            if st.button(f"Ver {nombre_corto}", key=f"dm_{dm_name}", use_container_width=True):
+            if st.button(f"► {nombre_corto}", key=f"dm_{dm_name}_{reg}", use_container_width=True,
+                help=f"Ver detalle de {nombre_corto}"):
                 nav_go(3, unidad=unidad_sel, zona=zona, regs=[reg], dms=[dm_name])
 
     # Graficos resumen
@@ -533,14 +536,14 @@ with tab2:
     if ef != 'Todas': dt = dt[dt['Estado']==ef]
 
     for _,r in dt.iterrows():
-        col_n, col_v, col_o, col_b, col_br, col_btn = st.columns([3,2,2,2,2,2])
-        col_n.markdown(f"{dot(r['Pct'],r['obj'])} **{r['Div']}**")
+        col_n, col_v, col_o, col_b, col_br = st.columns([4,2,2,2,2])
+        if col_n.button(f"{dot(r['Pct'],r['obj'])} {r['Div']} →", key=f"div_reg_{r['Div']}",
+            use_container_width=True, help="Ver por region"):
+            nav_go(2, unidad=unidad_sel, divs=[r['Div']])
         col_v.markdown(f"{fmm(r['Q'])}")
         col_o.markdown(f"{fmp(r['Pct'])} / {fmp(r['obj'])}")
         col_b.markdown(f"BP: {fmp(r['bp'])}")
         col_br.markdown(f"{r['Brecha']*100:+.2f} pp")
-        if col_btn.button("Ver por region", key=f"div_reg_{r['Div']}"):
-            nav_go(2, unidad=unidad_sel, divs=[r['Div']])
     st.markdown('</div>', unsafe_allow_html=True)
 
 
@@ -602,14 +605,14 @@ with tab3:
     # Tabla con drill-down a DM
     st.markdown('<div class="card"><div class="card-title">Detalle — clic en una region para ver sus DMs</div>', unsafe_allow_html=True)
     for _,r in regs_s.iterrows():
-        c1,c2,c3,c4,c5,c6 = st.columns([2,2,2,2,2,2])
-        c1.markdown(f"{dot(r['Pct'],r['obj'])} **Reg. {r['Region']}** {r['Zona']}")
+        c1,c2,c3,c4,c5 = st.columns([3,2,2,2,2])
+        if c1.button(f"{dot(r['Pct'],r['obj'])} Reg. {r['Region']} {r['Zona']} →",
+            key=f"reg_dm_{r['Region']}", use_container_width=True, help="Ver DMs de esta region"):
+            nav_go(3, unidad=unidad_sel, zona=r['Zona'], regs=[r['Region']])
         c2.markdown(fmm(r['Q']))
         c3.markdown(f"{fmp(r['Pct'])} / {fmp(r['obj'])}")
         c4.markdown(f"BP: {fmp(r['bp'])}")
         c5.markdown(f"{r['Brecha']*100:+.2f} pp")
-        if c6.button(f"Ver DMs", key=f"reg_dm_{r['Region']}"):
-            nav_go(3, unidad=unidad_sel, zona=r['Zona'], regs=[r['Region']])
     st.markdown('</div>', unsafe_allow_html=True)
 
 
@@ -691,7 +694,7 @@ with tab4:
             obj_txt = fmp(r['obj']) if pd.notna(r['obj']) else 'S/O'
             c3.markdown(f"{fmp(r['Pct'])} / {obj_txt}")
             c4.markdown(f"{r['Brecha']*100:+.2f} pp" if pd.notna(r['Brecha']) else 'S/O')
-            if c5.button("Ver", key=f"dm_ver_{r['DM']}"):
+            if c5.button("Ver", key=f"dm_ver_{r['DM']}_{r['Region']}_{r['Zona']}"):
                 nav_go(3, unidad=unidad_sel, zona=r['Zona'], regs=[r['Region']], dms=[r['DM']])
         st.markdown('</div>', unsafe_allow_html=True)
 
