@@ -108,6 +108,11 @@ def load_data():
     raw = raw[~raw['Zona'].isin(['NO ASIGNADA','Total Ara sin BDC','Total Ara sin BDC y FRA'])]
     raw = raw[raw['Desc_Tienda'].notna() & raw['Desc_Division'].notna()]
 
+    # Excluir CEDIs y Centros de Distribución — no son tiendas de cara al cliente
+    excluir_tiendas = ['CEDI', 'CENTRO DISTRIBU', 'CENTRO DISTRIBUCI', 'C. DISTRIBUCION']
+    patron = '|'.join(excluir_tiendas)
+    raw = raw[~raw['Desc_Tienda'].str.contains(patron, case=False, na=False)]
+
     # Limpiar números
     def n(v):
         try: return float(str(v).replace(',','').strip())
