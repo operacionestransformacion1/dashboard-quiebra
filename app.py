@@ -170,10 +170,6 @@ div[data-testid="stDataFrame"] { border-radius: 8px; overflow: hidden; }
 # Los archivos están en Google Drive privado. Se accede con gdown usando
 # los IDs de los archivos (parte de la URL de Drive).
 #
-# IDs de los archivos:
-#   BO (datos reales diarios)  : 1i2a0XaB9hR8o9Kk0lCCEWx7O1uTF5dvx
-#   Objetivos (mensual)        : 1hDJaYJ6bu8uiRr4RFp1tyRNHqu-oQifc
-#
 # @st.cache_data(ttl=3600): cachea los datos por 1 hora para no descargar
 # en cada interacción del usuario. Para forzar actualización usar el botón
 # "Actualizar datos" en el sidebar.
@@ -530,10 +526,10 @@ PLOTLY_TEMPLATE = dict(
 # PESTAÑAS DE NAVEGACIÓN
 # =============================================================================
 tab1, tab2, tab3, tab4 = st.tabs([
-    "📊  Resumen",
-    "📦  Divisiones",
-    "🗺️  Regiones",
-    "👤  DM & Tiendas"
+    "Resumen",
+    "Divisiones",
+    "Regiones",
+    "DM & Tiendas"
 ])
 
 
