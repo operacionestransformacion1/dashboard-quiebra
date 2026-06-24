@@ -244,7 +244,7 @@ def load_data():
 
     # Tabla de divisiones (agrupada por división)
     divisiones = tiendas_raw.groupby(
-        ['Cod Division','Desc Division'], as_index=False
+        ['Unidad_Negocio','Cod Division','Desc Division'], as_index=False
     ).agg({'Ventas Real':'sum','Ventas Historico':'sum','Quiebra Real':'sum','Quiebra Historico':'sum','Dif Quiebra PP':'sum'})
     divisiones['Quiebra Pct Real']      = divisiones['Quiebra Real'] / divisiones['Ventas Real']
     divisiones['Quiebra Pct Historico'] = divisiones['Quiebra Historico'] / divisiones['Ventas Historico']
@@ -349,10 +349,6 @@ with st.sidebar:
         zonas = ['Todas'] + sorted(tiendas['Zona'].dropna().unique().tolist())
         zona_sel = st.selectbox("Zona", zonas)
 
-        # Unidad de negocio
-        unidades = ['Ara', 'BdC', 'Ara Franquicia']
-        unidad_sel = st.selectbox("Unidad de Negocio", unidades, index=0)
-
         # ── Filtro 2: Región ──────────────────────────────────────────────────
         # Multiselecta. Se filtra según la zona seleccionada.
         if zona_sel != 'Todas':
@@ -402,9 +398,6 @@ tiendas_f  = tiendas.copy()
 dm_f       = dm.copy()
 regiones_f = regiones.copy()
 
-# Filtro unidad de negocio (default Ara)
-tiendas_f = tiendas_f[tiendas_f['Unidad_Negocio'] == unidad_sel]
-
 # Aplicar filtro de zona
 if zona_sel != 'Todas':
     tiendas_f  = tiendas_f[tiendas_f['Zona'] == zona_sel]
@@ -442,10 +435,9 @@ dm_con_obj = dm_f.merge(
     on='District Manager', how='left'
 )
 
-# Divisiones filtradas por unidad de negocio
-divisiones_f = divisiones[divisiones['Unidad_Negocio'] == unidad_sel].copy()
-
-div_con_obj = divisiones_f.merge(
+# Divisiones (sin filtro de zona) + objetivos por división
+# Nota: divisiones no tiene zona, siempre muestra el total nacional
+div_con_obj = divisiones.merge(
     obj_div[['Desc. Division', 'Quiebra Objetivo $', 'Objetivo Quiebra %']],
     left_on='Desc Division', right_on='Desc. Division', how='left'
 )
