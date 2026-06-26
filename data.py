@@ -1,4 +1,4 @@
-"""Carga de datos desde Google Drive: CSV de tiendas y Excel de objetivos."""
+k"""Carga de datos desde Google Drive: CSV de tiendas y Excel de objetivos."""
 
 import gdown
 import pandas as pd
@@ -32,7 +32,10 @@ def load_data():
     gdown.download(url_t, TIENDAS_PATH, quiet=True)
     gdown.download(url_o, OBJ_PATH, quiet=True)
 
-    raw = pd.read_csv(TIENDAS_PATH, encoding='latin-1', dtype=str)
+    try:
+        raw = pd.read_csv(TIENDAS_PATH, encoding='utf-8-sig', dtype=str)
+    except UnicodeDecodeError:
+        raw = pd.read_csv(TIENDAS_PATH, encoding='latin-1', dtype=str)
     raw.columns = COLUMNS
     raw = raw[raw['Unidad'].isin(['Ara', 'BdC', 'Ara Franquicia'])]
     raw = raw[~raw['Zona'].isin(['NO ASIGNADA', 'Total Ara sin BDC', 'Total Ara sin BDC y FRA'])]
