@@ -19,7 +19,7 @@ import pandas as pd
 import plotly.graph_objects as go
 
 from styles import CSS
-from nav import nav_init, nav_back, nav_fwd, nav_go
+from nav import nav_init, nav_back, nav_fwd, nav_go, nav_reset
 from data import load_data
 from helpers import fmm, fmp, pill, dot, dot_txt, agg, pb, C
 
@@ -66,7 +66,7 @@ with st.sidebar:
 
         # Filtros según pestaña activa
         tab_idx = cur['tab']
-        zona_sel = cur['zona']
+        zona_sel = cur['zonas']
         reg_sel  = cur['regs']
         dm_sel   = cur['dms']
         div_sel  = cur['divs']
@@ -78,20 +78,18 @@ with st.sidebar:
 
         elif tab_idx == 2:  # Regiones
             st.markdown("<p>Zona</p>", unsafe_allow_html=True)
-            zonas = ['Todas'] + sorted(raw_u['Zona'].dropna().unique().tolist())
-            zi = zonas.index(cur['zona']) if cur['zona'] in zonas else 0
-            zona_sel = st.selectbox("", zonas, index=zi, key=f'sb_zona_{st.session_state.pos}', label_visibility='collapsed')
-            raw_z = raw_u[raw_u['Zona']==zona_sel] if zona_sel != 'Todas' else raw_u
+            zonas_opts = sorted(raw_u['Zona'].dropna().unique().tolist())
+            zona_sel = st.multiselect("", zonas_opts, default=[z for z in cur['zonas'] if z in zonas_opts], key=f'sb_zona_{st.session_state.pos}', label_visibility='collapsed')
+            raw_z = raw_u[raw_u['Zona'].isin(zona_sel)] if zona_sel else raw_u
             st.markdown("<p style='margin-top:8px'>Region</p>", unsafe_allow_html=True)
             regs_opts = sorted(raw_z['Region'].dropna().unique().tolist())
             reg_sel = st.multiselect("", regs_opts, default=[r for r in cur['regs'] if r in regs_opts], key=f'sb_reg_{st.session_state.pos}', label_visibility='collapsed')
 
         elif tab_idx == 3:  # DM y Tiendas
             st.markdown("<p>Zona</p>", unsafe_allow_html=True)
-            zonas = ['Todas'] + sorted(raw_u['Zona'].dropna().unique().tolist())
-            zi = zonas.index(cur['zona']) if cur['zona'] in zonas else 0
-            zona_sel = st.selectbox("", zonas, index=zi, key=f'sb_zona_dm_{st.session_state.pos}', label_visibility='collapsed')
-            raw_z = raw_u[raw_u['Zona']==zona_sel] if zona_sel != 'Todas' else raw_u
+            zonas_opts = sorted(raw_u['Zona'].dropna().unique().tolist())
+            zona_sel = st.multiselect("", zonas_opts, default=[z for z in cur['zonas'] if z in zonas_opts], key=f'sb_zona_dm_{st.session_state.pos}', label_visibility='collapsed')
+            raw_z = raw_u[raw_u['Zona'].isin(zona_sel)] if zona_sel else raw_u
             st.markdown("<p style='margin-top:8px'>Region</p>", unsafe_allow_html=True)
             regs_opts = sorted(raw_z['Region'].dropna().unique().tolist())
             reg_sel = st.multiselect("", regs_opts, default=[r for r in cur['regs'] if r in regs_opts], key=f'sb_reg_dm_{st.session_state.pos}', label_visibility='collapsed')
@@ -104,6 +102,8 @@ with st.sidebar:
             st.markdown('<p style="font-style:italic;color:#7B8FAE!important">Vista ejecutiva</p>', unsafe_allow_html=True)
 
         st.markdown('<div style="height:1px;background:#2D3A5A;margin:10px 0"></div>', unsafe_allow_html=True)
+        if st.button("Reestablecer todo", use_container_width=True, help="Borra todos los filtros e historial de navegacion"):
+            nav_reset()
         if st.button("Actualizar datos", use_container_width=True):
             st.cache_data.clear()
             st.rerun()
@@ -117,7 +117,7 @@ if not data_ok:
 # =============================================================================
 f = raw.copy()
 if unidad_sel != 'Todas': f = f[f['Unidad'] == unidad_sel]
-if zona_sel   != 'Todas': f = f[f['Zona']   == zona_sel]
+if zona_sel:  f = f[f['Zona'].isin(zona_sel)]
 if reg_sel:  f = f[f['Region'].isin(reg_sel)]
 if dm_sel:   f = f[f['DM'].isin(dm_sel)]
 if div_sel:  f = f[f['Div'].isin(div_sel)]
@@ -131,7 +131,7 @@ can_fwd  = st.session_state.pos < len(st.session_state.hist) - 1
 # Breadcrumb
 bc_parts = ['Resumen']
 if cur['unidad'] != 'Todas': bc_parts.append(cur['unidad'])
-if cur['zona']   != 'Todas': bc_parts.append(cur['zona'])
+if cur['zonas']:  bc_parts.append(', '.join(cur['zonas']))
 if cur['regs']:  bc_parts.append('Reg. '+', '.join(cur['regs']))
 if cur['dms']:   bc_parts.append(', '.join([d.split()[0]+' '+d.split()[-1] for d in cur['dms']]))
 if cur['divs']:  bc_parts.append(', '.join(cur['divs']))
@@ -253,7 +253,7 @@ with tab1:
         for _,r in top3r.iterrows():
             if st.button(f"► Reg. {r['Region']}", key=f"r_{r['Region']}", use_container_width=True,
                 help=f"Ver detalle de Región {r['Region']}"):
-                nav_go(2, unidad=unidad_sel, zona=r['Zona'], regs=[r['Region']])
+                nav_go(2, unidad=unidad_sel, zonas=[r['Zona']], regs=[r['Region']])
 
     # Flash: Top 2 DM por region critica — clic navega a DM filtrado
     with fc3:
@@ -282,7 +282,7 @@ with tab1:
             nombre_corto = dm_name.split()[0]+' '+dm_name.split()[-1]
             if st.button(f"► {nombre_corto}", key=f"dm_{dm_name}_{reg}", use_container_width=True,
                 help=f"Ver detalle de {nombre_corto}"):
-                nav_go(3, unidad=unidad_sel, zona=zona, regs=[reg], dms=[dm_name])
+                nav_go(3, unidad=unidad_sel, zonas=[zona], regs=[reg], dms=[dm_name])
 
     # Graficos resumen
     g1,g2 = st.columns(2)
@@ -458,7 +458,7 @@ with tab3:
         c1,c2,c3,c4,c5 = st.columns([3,2,2,2,2])
         if c1.button(f"{dot_txt(r['Pct'],r['obj'])} Reg. {r['Region']} {r['Zona']} →",
             key=f"reg_dm_{r['Region']}", use_container_width=True, help="Ver DMs de esta region"):
-            nav_go(3, unidad=unidad_sel, zona=r['Zona'], regs=[r['Region']])
+            nav_go(3, unidad=unidad_sel, zonas=[r['Zona']], regs=[r['Region']])
         c2.markdown(fmm(r['Q']))
         c3.markdown(f"{fmp(r['Pct'])} / {fmp(r['obj'])}")
         c4.markdown(f"BP: {fmp(r['bp'])}")
@@ -546,7 +546,7 @@ with tab4:
             c3.markdown(f"{fmp(r['Pct'])} / {obj_txt}")
             c4.markdown(f"{r['Brecha']*100:+.2f} pp" if pd.notna(r['Brecha']) else 'S/O')
             if c5.button("Ver", key=f"dm_ver_{r['DM']}_{r['Region']}_{r['Zona']}"):
-                nav_go(3, unidad=unidad_sel, zona=r['Zona'], regs=[r['Region']], dms=[r['DM']])
+                nav_go(3, unidad=unidad_sel, zonas=[r['Zona']], regs=[r['Region']], dms=[r['DM']])
         st.markdown('</div>', unsafe_allow_html=True)
 
     with t2:
