@@ -45,5 +45,7 @@ section[data-testid="stSidebar"] p{color:#7B8FAE!important;font-size:10px!import
     font-size:12px;font-weight:500;color:#7B8FAE;border-bottom:2px solid transparent;margin-bottom:-1.5px}
 .stTabs [aria-selected="true"]{color:#1A2540!important;border-bottom:2px solid #1A2540!important;
     background:transparent!important}
+.stButton>button{color:#1A2540!important;font-size:14px}
+.stButton>button:disabled{color:#C8CFDC!important;opacity:1!important}
 </style>
 """
