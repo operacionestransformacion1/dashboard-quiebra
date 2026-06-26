@@ -294,6 +294,7 @@ with tab1:
             'BP':  obj_reg.loc[obj_reg['Cod. Region'].isin(x['Region'].unique()),'Best Practice %'].mean(),
         })).reset_index()
         zd = zd.merge(zona_obj, on='Zona', how='left')
+        zd = zd.sort_values('Pct')
         fig = go.Figure()
         fig.add_trace(go.Bar(name='Real', x=zd['Zona'], y=zd['Pct']*100,
             marker_color=[C['red'] if r<o else C['green'] for r,o in zip(zd['Pct'],zd['Obj'])],
@@ -315,7 +316,7 @@ with tab1:
         bp_col = 'Best Practice %' if 'Best Practice %' in top7.columns else 'obj'
         fig2.add_trace(go.Scatter(name='BP', y=top7['Div'], x=top7[bp_col]*100,
             mode='markers', marker=dict(color=C['bp'],size=8,symbol='diamond')))
-        fig2.update_layout(**pb(), barmode='group', height=220, xaxis_ticksuffix='%')
+        fig2.update_layout(**pb(), barmode='group', height=220, xaxis_ticksuffix='%', yaxis_autorange='reversed')
         st.plotly_chart(fig2, use_container_width=True)
         st.markdown('</div>', unsafe_allow_html=True)
 
@@ -338,7 +339,7 @@ with tab2:
         fig = go.Figure(go.Bar(y=divs_s['Div'], x=divs_s['Q']/1e6, orientation='h',
             marker_color=[C['red'] if r<o else C['green'] for r,o in zip(divs_s['Pct'],divs_s['obj'])],
             text=[f"-${abs(v):,.0f}M" for v in divs_s['Q']/1e6], textposition='outside', textfont=dict(size=10)))
-        fig.update_layout(**pb(), height=250, showlegend=False)
+        fig.update_layout(**pb(), height=250, showlegend=False, yaxis_autorange='reversed')
         st.plotly_chart(fig, use_container_width=True)
         st.markdown('</div>', unsafe_allow_html=True)
 
@@ -350,7 +351,7 @@ with tab2:
         fig2.add_trace(go.Bar(name='Objetivo', y=divs_s['Div'], x=divs_s['obj']*100, orientation='h', marker_color=C['obj']))
         fig2.add_trace(go.Scatter(name='BP', y=divs_s['Div'], x=divs_s['bp']*100,
             mode='markers', marker=dict(color=C['bp'],size=8,symbol='diamond')))
-        fig2.update_layout(**pb(), barmode='group', height=250, xaxis_ticksuffix='%')
+        fig2.update_layout(**pb(), barmode='group', height=250, xaxis_ticksuffix='%', yaxis_autorange='reversed')
         st.plotly_chart(fig2, use_container_width=True)
         st.markdown('</div>', unsafe_allow_html=True)
 
@@ -382,6 +383,7 @@ with tab2:
     dt = divs.copy()
     dt['Estado'] = dt.apply(lambda r: 'Critico' if r['Pct']<r['obj'] else 'OK', axis=1)
     if ef != 'Todas': dt = dt[dt['Estado']==ef]
+    dt = dt.sort_values('Pct')
 
     for _,r in dt.iterrows():
         col_n, col_v, col_o, col_b, col_br = st.columns([4,2,2,2,2])
@@ -487,7 +489,7 @@ with tab4:
         fig.add_trace(go.Bar(name='Objetivo', y=nombres, x=top10['obj'].fillna(0)*100, orientation='h', marker_color=C['obj']))
         fig.add_trace(go.Scatter(name='BP', y=nombres, x=top10['bp'].fillna(0)*100,
             mode='markers', marker=dict(color=C['bp'],size=8,symbol='diamond')))
-        fig.update_layout(**pb(), barmode='group', height=280, xaxis_ticksuffix='%')
+        fig.update_layout(**pb(), barmode='group', height=280, xaxis_ticksuffix='%', yaxis_autorange='reversed')
         st.plotly_chart(fig, use_container_width=True)
         st.markdown('</div>', unsafe_allow_html=True)
 
@@ -514,6 +516,7 @@ with tab4:
         st.markdown('<div class="card"><div class="card-title">Distribucion quiebra $ por zona</div>', unsafe_allow_html=True)
         zq = f.groupby('Zona')['Quiebra'].sum().reset_index()
         zq['Quiebra'] = zq['Quiebra'].abs()
+        zq = zq.sort_values('Quiebra', ascending=False)
         fig3 = go.Figure(go.Pie(labels=zq['Zona'], values=zq['Quiebra'],
             hole=.5, marker_colors=[C['red'],'#8B4513',C['navy'],C['green']], textfont=dict(size=11)))
         fig3.update_layout(**pb(), height=190)
@@ -526,7 +529,7 @@ with tab4:
         fig4 = go.Figure(go.Bar(y=tt['Tienda'].apply(lambda x: x[:22]),x=tt['Q']/1e6, orientation='h',
             marker_color=C['red'], text=[f"-${abs(v):,.0f}M" for v in tt['Q']/1e6],
             textposition='outside', textfont=dict(size=10)))
-        fig4.update_layout(**pb(), height=190, showlegend=False)
+        fig4.update_layout(**pb(), height=190, showlegend=False, yaxis_autorange='reversed')
         st.plotly_chart(fig4, use_container_width=True)
         st.markdown('</div>', unsafe_allow_html=True)
 
