@@ -59,7 +59,7 @@ with st.sidebar:
         st.markdown("<p>Unidad de negocio</p>", unsafe_allow_html=True)
         unidades = ['Todas'] + sorted(raw['Unidad'].dropna().unique().tolist())
         uid = unidades.index(cur['unidad']) if cur['unidad'] in unidades else (unidades.index('Ara') if 'Ara' in unidades else 0)
-        unidad_sel = st.selectbox("", unidades, index=uid, key='sb_unidad', label_visibility='collapsed')
+        unidad_sel = st.selectbox("", unidades, index=uid, key=f'sb_unidad_{st.session_state.pos}', label_visibility='collapsed')
         raw_u = raw[raw['Unidad']==unidad_sel] if unidad_sel != 'Todas' else raw
 
         st.markdown('<div style="height:1px;background:#2D3A5A;margin:10px 0"></div>', unsafe_allow_html=True)
@@ -74,31 +74,31 @@ with st.sidebar:
         if tab_idx == 1:  # Divisiones
             st.markdown("<p>Division</p>", unsafe_allow_html=True)
             divs_opts = sorted(raw_u['Div'].dropna().unique().tolist())
-            div_sel = st.multiselect("", divs_opts, default=[d for d in cur['divs'] if d in divs_opts], key='sb_div', label_visibility='collapsed')
+            div_sel = st.multiselect("", divs_opts, default=[d for d in cur['divs'] if d in divs_opts], key=f'sb_div_{st.session_state.pos}', label_visibility='collapsed')
 
         elif tab_idx == 2:  # Regiones
             st.markdown("<p>Zona</p>", unsafe_allow_html=True)
             zonas = ['Todas'] + sorted(raw_u['Zona'].dropna().unique().tolist())
             zi = zonas.index(cur['zona']) if cur['zona'] in zonas else 0
-            zona_sel = st.selectbox("", zonas, index=zi, key='sb_zona', label_visibility='collapsed')
+            zona_sel = st.selectbox("", zonas, index=zi, key=f'sb_zona_{st.session_state.pos}', label_visibility='collapsed')
             raw_z = raw_u[raw_u['Zona']==zona_sel] if zona_sel != 'Todas' else raw_u
             st.markdown("<p style='margin-top:8px'>Region</p>", unsafe_allow_html=True)
             regs_opts = sorted(raw_z['Region'].dropna().unique().tolist())
-            reg_sel = st.multiselect("", regs_opts, default=[r for r in cur['regs'] if r in regs_opts], key='sb_reg', label_visibility='collapsed')
+            reg_sel = st.multiselect("", regs_opts, default=[r for r in cur['regs'] if r in regs_opts], key=f'sb_reg_{st.session_state.pos}', label_visibility='collapsed')
 
         elif tab_idx == 3:  # DM y Tiendas
             st.markdown("<p>Zona</p>", unsafe_allow_html=True)
             zonas = ['Todas'] + sorted(raw_u['Zona'].dropna().unique().tolist())
             zi = zonas.index(cur['zona']) if cur['zona'] in zonas else 0
-            zona_sel = st.selectbox("", zonas, index=zi, key='sb_zona_dm', label_visibility='collapsed')
+            zona_sel = st.selectbox("", zonas, index=zi, key=f'sb_zona_dm_{st.session_state.pos}', label_visibility='collapsed')
             raw_z = raw_u[raw_u['Zona']==zona_sel] if zona_sel != 'Todas' else raw_u
             st.markdown("<p style='margin-top:8px'>Region</p>", unsafe_allow_html=True)
             regs_opts = sorted(raw_z['Region'].dropna().unique().tolist())
-            reg_sel = st.multiselect("", regs_opts, default=[r for r in cur['regs'] if r in regs_opts], key='sb_reg_dm', label_visibility='collapsed')
+            reg_sel = st.multiselect("", regs_opts, default=[r for r in cur['regs'] if r in regs_opts], key=f'sb_reg_dm_{st.session_state.pos}', label_visibility='collapsed')
             raw_r = raw_z[raw_z['Region'].isin(reg_sel)] if reg_sel else raw_z
             st.markdown("<p style='margin-top:8px'>District Manager</p>", unsafe_allow_html=True)
             dms_opts = sorted(raw_r['DM'].dropna().unique().tolist())
-            dm_sel = st.multiselect("", dms_opts, default=[d for d in cur['dms'] if d in dms_opts], key='sb_dm', label_visibility='collapsed')
+            dm_sel = st.multiselect("", dms_opts, default=[d for d in cur['dms'] if d in dms_opts], key=f'sb_dm_{st.session_state.pos}', label_visibility='collapsed')
 
         else:  # Resumen
             st.markdown('<p style="font-style:italic;color:#7B8FAE!important">Vista ejecutiva</p>', unsafe_allow_html=True)
@@ -537,7 +537,7 @@ with tab4:
         for _,r in dms_s.iterrows():
             c1,c2,c3,c4,c5 = st.columns([3,2,2,2,2])
             nombre = r['DM'].split()[0]+' '+r['DM'].split()[-1]
-            c1.markdown(f"{dot(r['Pct'],r['obj'] or 0)} **{nombre}**")
+            c1.markdown(f"{dot(r['Pct'],r['obj'] or 0)} **{nombre}**", unsafe_allow_html=True)
             c2.markdown(fmm(r['Q']))
             obj_txt = fmp(r['obj']) if pd.notna(r['obj']) else 'S/O'
             c3.markdown(f"{fmp(r['Pct'])} / {obj_txt}")
