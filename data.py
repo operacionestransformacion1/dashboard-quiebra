@@ -1,4 +1,4 @@
-k"""Carga de datos desde Google Drive: CSV de tiendas y Excel de objetivos."""
+"""Carga de datos desde Google Drive: CSV de tiendas y Excel de objetivos."""
 
 import gdown
 import pandas as pd
