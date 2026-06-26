@@ -21,7 +21,7 @@ import plotly.graph_objects as go
 from styles import CSS
 from nav import nav_init, nav_back, nav_fwd, nav_go
 from data import load_data
-from helpers import fmm, fmp, pill, dot, agg, pb, C
+from helpers import fmm, fmp, pill, dot, dot_txt, agg, pb, C
 
 st.set_page_config(
     page_title="Quiebra MTD",
@@ -385,7 +385,7 @@ with tab2:
 
     for _,r in dt.iterrows():
         col_n, col_v, col_o, col_b, col_br = st.columns([4,2,2,2,2])
-        if col_n.button(f"{dot(r['Pct'],r['obj'])} {r['Div']} →", key=f"div_reg_{r['Div']}",
+        if col_n.button(f"{dot_txt(r['Pct'],r['obj'])} {r['Div']} →", key=f"div_reg_{r['Div']}",
             use_container_width=True, help="Ver por region"):
             nav_go(2, unidad=unidad_sel, divs=[r['Div']])
         col_v.markdown(f"{fmm(r['Q'])}")
@@ -454,7 +454,7 @@ with tab3:
     st.markdown('<div class="card"><div class="card-title">Detalle — clic en una region para ver sus DMs</div>', unsafe_allow_html=True)
     for _,r in regs_s.iterrows():
         c1,c2,c3,c4,c5 = st.columns([3,2,2,2,2])
-        if c1.button(f"{dot(r['Pct'],r['obj'])} Reg. {r['Region']} {r['Zona']} →",
+        if c1.button(f"{dot_txt(r['Pct'],r['obj'])} Reg. {r['Region']} {r['Zona']} →",
             key=f"reg_dm_{r['Region']}", use_container_width=True, help="Ver DMs de esta region"):
             nav_go(3, unidad=unidad_sel, zona=r['Zona'], regs=[r['Region']])
         c2.markdown(fmm(r['Q']))
