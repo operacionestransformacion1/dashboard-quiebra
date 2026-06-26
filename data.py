@@ -10,6 +10,11 @@ OBJ_PATH = '/tmp/obj.xlsx'
 COLUMNS = ['Unidad', 'Zona', 'Region', 'DM', 'AM', 'CodT', 'Tienda',
            'CodDiv', 'Div', 'VR', 'VH', 'QR', 'QPR', 'QH', 'QPH', 'DP', 'DQ']
 
+DIVS_EXCLUIDAS = [
+    'BOLSAS DE PAPEL', 'BOLSAS PLASTICAS', 'CONSUMO INTERNO', 'CONTAINERS',
+    'EMPAQUES PLASTICOS', 'MATERIALES DE PUBLICIDAD', 'OTROS',
+]
+
 
 def _to_number(v):
     try:
@@ -42,6 +47,8 @@ def load_data():
     raw = raw[raw['Tienda'].notna() & raw['Div'].notna()]
     # Excluir CEDIs y centros de distribución
     raw = raw[~raw['Tienda'].str.contains('CEDI|CENTRO DISTRIBU|C. DISTRIBUCION', case=False, na=False)]
+    # Excluir divisiones que no aplican a quiebra de venta (empaques, consumo interno, etc.)
+    raw = raw[~raw['Div'].str.upper().str.strip().isin(DIVS_EXCLUIDAS)]
 
     for c in ['VR', 'VH', 'QR', 'QH', 'DP', 'DQ']:
         raw[c] = raw[c].apply(_to_number)
