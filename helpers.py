@@ -28,6 +28,13 @@ def dot(real, obj):
     return '<span class="ib"></span>' if real < obj else '<span class="ig"></span>'
 
 
+def dot_txt(real, obj):
+    """Como dot(), pero en texto plano (sin HTML) para usar dentro de st.button()."""
+    if real is None or obj is None or pd.isna(real) or pd.isna(obj):
+        return ''
+    return '🔴' if real < obj else '🟢'
+
+
 def agg(df, keys):
     g = df.groupby(keys, as_index=False).agg(V=('Ventas', 'sum'), VH=('VentasH', 'sum'), Q=('Quiebra', 'sum'), QH=('QuiebraH', 'sum'))
     g['Pct'] = (g['Q'] / g['V']).where(g['V'] != 0)
