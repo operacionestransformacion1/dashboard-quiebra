@@ -136,12 +136,12 @@ if cur['regs']:  bc_parts.append('Reg. '+', '.join(cur['regs']))
 if cur['dms']:   bc_parts.append(', '.join([d.split()[0]+' '+d.split()[-1] for d in cur['dms']]))
 if cur['divs']:  bc_parts.append(', '.join(cur['divs']))
 
-nav1, nav2, nav3, nav4 = st.columns([0.04, 0.04, 0.72, 0.20])
+nav1, nav2, nav3, nav4 = st.columns([0.06, 0.06, 0.68, 0.20])
 with nav1:
-    if st.button("←", disabled=not can_back, key='back'):
+    if st.button("←", disabled=not can_back, key='back', use_container_width=True):
         nav_back()
 with nav2:
-    if st.button("→", disabled=not can_fwd, key='fwd'):
+    if st.button("→", disabled=not can_fwd, key='fwd', use_container_width=True):
         nav_fwd()
 with nav3:
     st.markdown(f'<div class="nav-title">Panel de Control — Quiebra MTD</div>', unsafe_allow_html=True)
