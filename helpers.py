@@ -30,8 +30,8 @@ def dot(real, obj):
 
 def agg(df, keys):
     g = df.groupby(keys, as_index=False).agg(V=('Ventas', 'sum'), VH=('VentasH', 'sum'), Q=('Quiebra', 'sum'), QH=('QuiebraH', 'sum'))
-    g['Pct'] = g['Q'] / g['V']
-    g['PctH'] = g['QH'] / g['VH']
+    g['Pct'] = (g['Q'] / g['V']).where(g['V'] != 0)
+    g['PctH'] = (g['QH'] / g['VH']).where(g['VH'] != 0)
     return g
 
 
